@@ -3,20 +3,19 @@
 
 from math import log
 from hymlab.text.text import *
+from hymlab.text.feature.feature import *
 
-class TfIdf:
+class TfIdf(Feature):
     """
-    TF-IDFモジュール
+    - 抽象クラス
+    参考: http://doloopwhile.hatenablog.com/entry/20090627/1275175981
+
+    - TF-IDFモジュール
     nltkのパクリ
     """
     # TODO: init idf other dir
     def __init__(self, text_collection):
-        # 委譲
-        self._tc = text_collection
-        deligates = "list words_list".split()
-        for name in deligates:
-            method = getattr(self._tc, name)
-            setattr(self, name, method)
+        super(TfIdf, self).__init__(text_collection)
 
         # ここで分離すべき
         self._idf_cache = {}
@@ -45,14 +44,21 @@ class TfIdf:
     def tf_idf(self, term, text):
         return self.tf(term, text) * self.idf(term)
 
-    def run(self):
-        res = []
-        for (text_obj, text) in zip(self._tc.list(), self._tc.words_list()):
+    def vecs(self):
+        """
+        @override
+        ベクトルを計算する
+
+        input: [["w1", "w2"], ["w3", "w1"], ...]
+        :return: {"w1": 0.22231, "w2": 0.65433, ...}
+        """
+        vecs = []
+        for text in self._tc.words_list():
             vec = {} # document vector
             for word in text:
                 vec[word] = self.tf_idf(word, text)
-            res.append((text_obj, vec))
-        return res
+            vecs.append(vec)
+        return vecs
 
 if __name__ == "__main__":
     from hymlab.text.vital import pp
@@ -70,11 +76,11 @@ if __name__ == "__main__":
         def tearDown(self):
             pass
         
-        def dump(self):
+        def test_dump(self):
             r = TfIdf(self.tc).run()
-            for (text, vec) in r:
-                pp(text.words())
-                pp(vec)
+            for t in r:
+                pp(t.text.words())
+                pp(t.vec)
 
         def test_idf_correct_calc(self):
             r = TfIdf(self.tc)
