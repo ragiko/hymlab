@@ -108,8 +108,8 @@ class Similarity:
             sim = self.dict_cosine(vsm.vec, outer_vsm.vec)
             sim_obj = self.Similarity(outer_vsm, vsm, sim)
             similarities.append(sim_obj)
-            return sorted(similarities, key=attrgetter('similarity'), reverse=True)
 
+        return sorted(similarities, key=attrgetter('similarity'), reverse=True)
 
     # あるファイルの特徴量を探す
     # cos尺度より似ている物を探す
@@ -211,10 +211,6 @@ if __name__ == '__main__':
                 print u"file B : %s" %  sim.vsm2.text.path
                 print u"similarity : %s" %  sim.similarity
                 print "\n"
-
-
-
-
 
     unittest.main()
 

@@ -32,6 +32,27 @@ class Text:
             self.words_cache = [word.base_form for word in words if word.pos in content_poslist]
         return self.words_cache
 
+
+    def __getstate__(self):
+        """
+        - pickle化するときにself.sourceを保持しない
+        fileは保存できないので
+        参考: http://docs.python.jp/3/library/pickle.html
+        """
+        # Copy the object's state from self.__dict__ which contains
+        # all our instance attributes. Always use the dict.copy()
+        # method to avoid modifying the original state.
+        state = self.__dict__.copy()
+        # Remove the unpicklable entries.
+        del state['source']
+        return state
+
+    def __setstate__(self, state):
+        # Restore instance attributes (i.e., filename and lineno).
+        self.__dict__.update(state)
+        # Restore the previously opened file's state. To do so, we need to
+        # reopen it and read from it until the line count is restored.
+
 class TextCollection:
     """
     input1: directroy path
