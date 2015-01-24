@@ -45,7 +45,7 @@ class Similarity:
         @ 原先輩
         :param dict1:
         :param dict2:
-        :return:
+        :return: 1から-1 (片方が零ベクトルのときはNoneを返す)
         """
         # 基底となる単語の和集合を計算
         keys = set( dict1.keys() ) | set( dict2.keys() )
@@ -54,10 +54,22 @@ class Similarity:
         vector1 = [ dict1.get(key, 0) for key in keys]
         vector2 = [ dict2.get(key, 0) for key in keys]
 
+        # 零ベクトルの計算にはNoneを返却
+        if (self.is_zero_vector(vector1) or self.is_zero_vector(vector2)):
+            return None
+
         # cosine でコサイン距離を計算，1-cosineでコサイン類似度となる．
         sim = 1 - scipy.spatial.distance.cosine(vector1, vector2)
 
         return sim
+
+    def is_zero_vector(self, vector):
+        """
+        :param vector: list
+        :return:
+        """
+        zero_vec = [0.0] * len(vector)
+        return zero_vec == vector
 
     def most_similarity_future_by_inner_filename(self, filename):
         """
@@ -81,21 +93,19 @@ class Similarity:
 
         return sorted(similarities, key=attrgetter('similarity'), reverse=True)
 
-    # def most_similarity_future_by_outer_feature(self, outer_vsm):
-    #     """
-    #     - 類似度を計算してランキング
-    #     外部の文書に対して類似度を算出
-    #
-    #     :param
-    #     :return:
-    #     """
-    #     similarities = []
-    #     for vsm in self.features:
-    #         sim = self.dict_cosine(vsm.vec, outer_vsm.vec)
-    #         sim_obj = self.Similarity(outer_vsm, vsm, sim)
-    #         similarities.append(sim_obj)
-    #
-    #     return sorted(similarities, key=attrgetter('similarity'), reverse=True)
+    def most_similarity_future_by_outer_feature(self, outer_vsm):
+        """
+        - 類似度を計算してランキング
+        外部の文書に対して類似度を算出
+            :param
+        :return:
+        """
+        similarities = []
+        for vsm in self.features:
+            sim = self.dict_cosine(vsm.vec, outer_vsm.vec)
+            sim_obj = self.Similarity(outer_vsm, vsm, sim)
+            similarities.append(sim_obj)
+            return sorted(similarities, key=attrgetter('similarity'), reverse=True)
 
 
     # あるファイルの特徴量を探す
@@ -115,10 +125,24 @@ if __name__ == '__main__':
         def tearDown(self):
             pass
 
+        def test_is_zero_vector_input_zero_vector(self):
+            vector = [0,0.0,0]
+            self.assertEqual(self.sim.is_zero_vector(vector), True)
+            vector = [0,0,0]
+            self.assertEqual(self.sim.is_zero_vector(vector), True)
+
+        def test_is_zero_vector_input_not_zero_vector(self):
+            vector = [1,0.0,0]
+            self.assertEqual(self.sim.is_zero_vector(vector), False)
+
         def test_is_match(self):
             text = "path/to/file"
             self.assertEqual(self.sim.is_match("file", text), True)
             self.assertEqual(self.sim.is_match("aaa", text), False)
+
+        def test_dist_cosine_input_zero_vector(self):
+            t = self.sim.dict_cosine({"a":0, "b":0}, {"a":1, "b":2})
+            self.assertEqual(t, None)
 
         def test_find_future_by_file_is_exist(self):
             text = self.sim.find_feature_by_filename("a.txt")
@@ -136,11 +160,10 @@ if __name__ == '__main__':
             #     pp(sim.vsm2.text.words())
             #     pp(sim.similarity)
 
-        def test_most_similarity_future_by_outer_filename(self):
+        def test_most_similarity_future_by_outer_filename_only_sentence(self):
             tc = TextCollection([u"我が輩は猫である"])
             tfidf = TfIdf(tc).run()
-            pp(tfidf[0].vec)
-
+            # pp(tfidf[0].vec)
             # res = self.sim.most_similarity_future_by_outer_feature(tfidf[0])
             # for sim in res:
             #     pp(sim.vsm1.text.words())
