@@ -195,6 +195,27 @@ if __name__ == '__main__':
             #     pp(sim.vsm2.text.words())
             #     pp(sim.similarity)
 
+        def test_test(self):
+            # 文書集合を定義
+            tc = TextCollection("test/data")
+
+            # 特徴量を取得
+            tfidf = TfIdf(tc).run()
+
+            # a.txtに対する類似度を表示
+            self.sim = Similarity(tfidf)
+            res = self.sim.most_similarity_future_by_inner_filename("a.txt")
+
+            for sim in res:
+                print u"file A : %s" %  sim.vsm1.text.path
+                print u"file B : %s" %  sim.vsm2.text.path
+                print u"similarity : %s" %  sim.similarity
+                print "\n"
+
+
+
+
+
     unittest.main()
 
 
