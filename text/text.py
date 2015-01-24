@@ -31,6 +31,7 @@ class TextCollection:
     """
     input1: directroy path
     input2: ["sentence1", "sentence2"]
+    TODO: input3 file path
     """
     def __init__(self, path_or_sentences):
         self.path_or_sentences = path_or_sentences

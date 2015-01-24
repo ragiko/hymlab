@@ -81,6 +81,23 @@ class Similarity:
 
         return sorted(similarities, key=attrgetter('similarity'), reverse=True)
 
+    # def most_similarity_future_by_outer_feature(self, outer_vsm):
+    #     """
+    #     - 類似度を計算してランキング
+    #     外部の文書に対して類似度を算出
+    #
+    #     :param
+    #     :return:
+    #     """
+    #     similarities = []
+    #     for vsm in self.features:
+    #         sim = self.dict_cosine(vsm.vec, outer_vsm.vec)
+    #         sim_obj = self.Similarity(outer_vsm, vsm, sim)
+    #         similarities.append(sim_obj)
+    #
+    #     return sorted(similarities, key=attrgetter('similarity'), reverse=True)
+
+
     # あるファイルの特徴量を探す
     # cos尺度より似ている物を探す
     # ランキングして返却
@@ -119,7 +136,16 @@ if __name__ == '__main__':
             #     pp(sim.vsm2.text.words())
             #     pp(sim.similarity)
 
+        def test_most_similarity_future_by_outer_filename(self):
+            tc = TextCollection([u"我が輩は猫である"])
+            tfidf = TfIdf(tc).run()
+            pp(tfidf[0].vec)
 
+            # res = self.sim.most_similarity_future_by_outer_feature(tfidf[0])
+            # for sim in res:
+            #     pp(sim.vsm1.text.words())
+            #     pp(sim.vsm2.text.words())
+            #     pp(sim.similarity)
 
     unittest.main()
 
