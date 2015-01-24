@@ -22,8 +22,11 @@ class Similarity:
         テキストに対して正規表現が一致しているかどうか
         :param text:
         :param regexp:
-        :return:
+        :return: (入力がNoneのときは強制的にFalseを返す)
         """
+        if text is None:
+            return False
+
         if re.search(regexp, text):
             return True
         else:
@@ -97,7 +100,7 @@ class Similarity:
         """
         - 類似度を計算してランキング
         外部の文書に対して類似度を算出
-            :param
+        :param
         :return:
         """
         similarities = []
@@ -118,9 +121,15 @@ if __name__ == '__main__':
 
     class SimilarityTestCase(unittest.TestCase):
         def setUp(self):
+            # directory base init
             tc = TextCollection("test/data")
             tfidf = TfIdf(tc).run()
             self.sim = Similarity(tfidf)
+
+            # sentence base init
+            tc_s = TextCollection([u"我が輩は猫である", u"我が輩は猫である", u"名前はまだない"])
+            tfidf_s = TfIdf(tc_s).run()
+            self.sim_s = Similarity(tfidf_s)
 
         def tearDown(self):
             pass
@@ -140,6 +149,14 @@ if __name__ == '__main__':
             self.assertEqual(self.sim.is_match("file", text), True)
             self.assertEqual(self.sim.is_match("aaa", text), False)
 
+        def test_is_match_input_none(self):
+            """
+            テキストがNoneだったときにfalseを返す
+            :return:
+            """
+            text = "path/to/file"
+            self.assertEqual(self.sim.is_match("file", None), False)
+
         def test_dist_cosine_input_zero_vector(self):
             t = self.sim.dict_cosine({"a":0, "b":0}, {"a":1, "b":2})
             self.assertEqual(t, None)
@@ -152,6 +169,14 @@ if __name__ == '__main__':
             text = self.sim.find_feature_by_filename("abc.txt")
             self.assertEqual(text, None)
 
+        def test_find_future_by_file_for_sentence_base_init(self):
+            """
+            文字列ベースで初期化した時、ファイルを検索できない
+            :return:
+            """
+            text = self.sim_s.find_feature_by_filename("a.txt")
+            self.assertEqual(text, None)
+
         def test_most_similarity_future_by_inner_filename(self):
             pass
             # res = self.sim.most_similarity_future_by_inner_filename("a.txt")
@@ -161,9 +186,9 @@ if __name__ == '__main__':
             #     pp(sim.similarity)
 
         def test_most_similarity_future_by_outer_filename_only_sentence(self):
-            tc = TextCollection([u"我が輩は猫である"])
-            tfidf = TfIdf(tc).run()
-            # pp(tfidf[0].vec)
+            pass
+            # tc = TextCollection([u"我が輩は猫である"])
+            # tfidf = TfIdf(tc).run()
             # res = self.sim.most_similarity_future_by_outer_feature(tfidf[0])
             # for sim in res:
             #     pp(sim.vsm1.text.words())
