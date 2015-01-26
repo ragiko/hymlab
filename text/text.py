@@ -30,7 +30,12 @@ class Text:
             # 形態素解析し，結果をWordクラスの配列に格納
             words = mecabutil.get_words(contents)
             # 形態素解析結果から，名詞の単語の表層のみを抽出
-            self.words_cache = [word.base_form for word in words if word.pos in content_poslist]
+
+            # []の入力ならばすべての単語を返す
+            if (content_poslist == []):
+                self.words_cache = [word.base_form for word in words]
+            else: 
+                self.words_cache = [word.base_form for word in words if word.pos in content_poslist]
         return self.words_cache
 
 
@@ -152,6 +157,15 @@ if __name__ == "__main__":
             tc1.dump_texts()
             self.assertEqual(len(tc1.list()), 4)
 
+        def test_text_get_noun_words(self):
+            t = Text(u"我が輩は猫である")
+            self.assertEqual(len(t.words()), 2)
+
+        def test_text_get_all_words(self):
+            """
+            []を渡すと単語をすべて返す
+            """
+            t = Text(u"我が輩は猫である")
+            self.assertEqual(len(t.words([])), 6)
+
     unittest.main()
-
-
