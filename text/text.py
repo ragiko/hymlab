@@ -112,6 +112,23 @@ class TextCollection:
         self.list_cache = this_texts
         return self.list_cache 
 
+    def dump_corpus(self, filepath):
+        """
+        - コーパスを作成
+        我が輩は猫である
+        
+        to
+
+        我が 輩 は 猫 で ある
+
+        NOTE: 文章の最後は.にする
+        """
+        f = open(filepath, "w")
+        s = ".\n".join([" ".join(text.words([])) for text in self.list()]) + "."
+        pp(filepath)
+        f.write(s.encode("utf-8"))
+        f.close()
+
 __all__ = ["Text", "TextCollection"]
 
 if __name__ == "__main__":
@@ -130,14 +147,14 @@ if __name__ == "__main__":
     # pp(docs.list()[0])
     # pp(docs.words_list())
     # pp([(doc.path, doc.text()) for doc in docs.list()])
-    pp(docs.words_list())
+    # pp(docs.words_list())
 
     #///////////////////////////////
     # init file
     #///////////////////////////////
     docs = TextCollection("test/data")
     # pp([(doc.path, doc.text(), doc.words()) for doc in docs.list()])
-    pp(docs.words_list())
+    # pp(docs.words_list())
 
     class TextCollectionTestCase(unittest.TestCase):
         def setUp(self):
@@ -154,8 +171,12 @@ if __name__ == "__main__":
             tc1 = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
             tc2 = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
             tc1.add_text_collection(tc2)
-            tc1.dump_texts()
             self.assertEqual(len(tc1.list()), 4)
+
+        def test_text_collection_dump_corpus(self):
+            # tc = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
+            # tc.dump_corpus(os.path.dirname(os.path.abspath(__file__))+"/test/tmp/dump_corpus.txt")
+            pass
 
         def test_text_get_noun_words(self):
             t = Text(u"我が輩は猫である")
