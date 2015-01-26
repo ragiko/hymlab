@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+from hymlab.text.vital import *
 from hymlab.text.util import *
 from hymlab.text import mecabutil
 from hymlab.text.source import *
@@ -95,6 +96,17 @@ class TextCollection:
             pp(text)
             print "\n"
 
+    def add_text_collection(self, other_text_collection):
+        """
+        テキストコレクションを追加
+        NOTE: 自身のオブジェクトが変化
+        """
+        this_texts = self.list()
+        other_texts =  [text for text in other_text_collection.list()]
+        this_texts.extend(other_texts)
+        self.list_cache = this_texts
+        return self.list_cache 
+
 __all__ = ["Text", "TextCollection"]
 
 if __name__ == "__main__":
@@ -130,7 +142,15 @@ if __name__ == "__main__":
             pass
 
         def test_dump(self):
-            self.docs_from_dir.dump_texts()
+            # self.docs_from_dir.dump_texts()
+            pass
+
+        def test_text_collection_add_texts(self):
+            tc1 = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
+            tc2 = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
+            tc1.add_text_collection(tc2)
+            tc1.dump_texts()
+            self.assertEqual(len(tc1.list()), 4)
 
     unittest.main()
 
