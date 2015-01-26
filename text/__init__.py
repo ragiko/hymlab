@@ -4,10 +4,15 @@
 
 # Import top-level functionality into top-level namespace
 
-from hymlab.text.text import *
-from hymlab.text.similarity import *
-from hymlab.text.vital import *
-from hymlab.text.util import *
+from .text import *
+from .similarity import *
+from .vital import *
+from .util import *
+
+from . import text
+from . import similarity
+from . import vital
+from . import util
 
 ###########################################################
 # PACKAGES
