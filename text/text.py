@@ -86,10 +86,20 @@ class TextCollection:
         """
         return [text.words() for text in self.list()]
 
+    def dump_texts(self):
+        """
+        テキストを出力する
+        """
+        texts = [text_obj.text() for text_obj in self.list()]
+        for text in texts:
+            pp(text)
+            print "\n"
+
 __all__ = ["Text", "TextCollection"]
 
 if __name__ == "__main__":
     from hymlab.text.vital import pp
+    import unittest
 
     doc = Text(open("test/data/a.txt"))
     # pp(doc.text().encode('utf_8'))
@@ -111,4 +121,17 @@ if __name__ == "__main__":
     docs = TextCollection("test/data")
     # pp([(doc.path, doc.text(), doc.words()) for doc in docs.list()])
     pp(docs.words_list())
+
+    class TextCollectionTestCase(unittest.TestCase):
+        def setUp(self):
+            self.docs_from_dir = TextCollection("test/data")
+        
+        def tearDown(self):
+            pass
+
+        def test_dump(self):
+            self.docs_from_dir.dump_texts()
+
+    unittest.main()
+
 
