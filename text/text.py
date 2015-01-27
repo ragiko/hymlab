@@ -130,6 +130,14 @@ class TextCollection:
         f.write(s.encode("utf-8"))
         f.close()
 
+    def vocab(self):
+        """
+        ユニークな単語リスト
+        """
+        words = sum(self.words_list(), []) # flatten
+        return list(set(words))
+
+
 __all__ = ["Text", "TextCollection"]
 
 if __name__ == "__main__":
@@ -177,7 +185,11 @@ if __name__ == "__main__":
         def test_text_collection_dump_corpus(self):
             tc = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
             tc.dump_corpus(os.path.dirname(os.path.abspath(__file__))+"/test/tmp/dump_corpus.txt")
-            pass
+
+        def test_text_collection_vocab(self):
+            tc = TextCollection([u"我が輩は猫である", u"猫の名前はまだ無い"]) 
+            pp(tc.vocab())
+            self.assertEqual(tc.vocab(), [u"輩", u"名前", u"猫"])
 
         def test_text_get_noun_words(self):
             t = Text(u"我が輩は猫である")
@@ -189,5 +201,7 @@ if __name__ == "__main__":
             """
             t = Text(u"我が輩は猫である")
             self.assertEqual(len(t.words([])), 6)
+
+
 
     unittest.main()
