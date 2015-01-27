@@ -6,7 +6,7 @@
 tc = TextCollection("test/data")
 
 # 特徴量を取得
-tfidf = TfIdf(tc).run()
+tfidf = TfIdf(tc).tf_idf()
 
 # a.txtに対する類似度を表示
 self.sim = Similarity(tfidf)
