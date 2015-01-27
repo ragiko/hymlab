@@ -112,7 +112,7 @@ class TextCollection:
         self.list_cache = this_texts
         return self.list_cache 
 
-    def dump_corpus(self, filepath):
+    def dump_corpus(self, filepath, sent_end=""):
         """
         - コーパスを作成
         我が輩は猫である
@@ -124,7 +124,8 @@ class TextCollection:
         NOTE: 文章の最後は.にする
         """
         f = open(filepath, "w")
-        s = ".\n".join([" ".join(text.words([])) for text in self.list()]) + "."
+        e = sent_end + "\n"
+        s = e.join([" ".join(text.words([])) for text in self.list()]) + sent_end
         pp(filepath)
         f.write(s.encode("utf-8"))
         f.close()
@@ -174,8 +175,8 @@ if __name__ == "__main__":
             self.assertEqual(len(tc1.list()), 4)
 
         def test_text_collection_dump_corpus(self):
-            # tc = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
-            # tc.dump_corpus(os.path.dirname(os.path.abspath(__file__))+"/test/tmp/dump_corpus.txt")
+            tc = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
+            tc.dump_corpus(os.path.dirname(os.path.abspath(__file__))+"/test/tmp/dump_corpus.txt")
             pass
 
         def test_text_get_noun_words(self):
