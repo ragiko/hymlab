@@ -44,3 +44,5 @@ for sim in res:
 ## similarity.py
 * 文書ベクトルの類似度を測るモジュール
 
+## versions
+* 1.0 - featureにrunがある, vsmがdictonaryなvectorを保有
