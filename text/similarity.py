@@ -123,12 +123,12 @@ if __name__ == '__main__':
         def setUp(self):
             # directory base init
             tc = TextCollection("test/data")
-            tfidf = TfIdf(tc).run()
+            tfidf = TfIdf(tc).tf_idf()
             self.sim = Similarity(tfidf)
 
             # sentence base init
             tc_s = TextCollection([u"我が輩は猫である", u"我が輩は猫である", u"名前はまだない"])
-            tfidf_s = TfIdf(tc_s).run()
+            tfidf_s = TfIdf(tc_s).tf_idf()
             self.sim_s = Similarity(tfidf_s)
 
         def tearDown(self):
@@ -200,7 +200,7 @@ if __name__ == '__main__':
             tc = TextCollection("test/data")
 
             # 特徴量を取得
-            tfidf = TfIdf(tc).run()
+            tfidf = TfIdf(tc).tf_idf()
 
             # a.txtに対する類似度を表示
             self.sim = Similarity(tfidf)
@@ -213,5 +213,3 @@ if __name__ == '__main__':
                 print "\n"
 
     unittest.main()
-
-

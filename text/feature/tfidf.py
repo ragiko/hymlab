@@ -49,15 +49,15 @@ class TfIdf(Feature):
         - tfのアクセッサー
 
         input: [["w1", "w2"], ["w3", "w1"], ...]
-        :return: [{"w1": 0.22231, "w2": 0.65433, ...}, ...]
+        :return: [Vsm1, Vsm2, Vsm3, ...]
         """
         vecs = []
-        for text in self._tc.words_list():
+        for text in self._tc.list():
             vec = {} # document vector
-            for word in text:
-                vec[word] = self.calc_tf(word, text)
-            vecs.append(vec)
-        return vecs
+            for word in text.words():
+                vec[word] = self.calc_tf(word, text.words())
+            vecs.append(Vsm(text, vec))
+        return VsmList(vecs)
 
     def idf(self):
         """
@@ -80,15 +80,15 @@ class TfIdf(Feature):
         - tfidfのアクセッサー
 
         input: [["w1", "w2"], ["w3", "w1"], ...]
-        :return: [{"w1": 0.22231, "w2": 0.65433, ...}, ...]
+        :return: [Vsm1, Vsm2, Vsm3, ...]
         """
         vecs = []
-        for text in self._tc.words_list():
+        for text in self._tc.list():
             vec = {} # document vector
-            for word in text:
-                vec[word] = self.calc_tf_idf(word, text)
-            vecs.append(vec)
-        return vecs
+            for word in text.words():
+                vec[word] = self.calc_tf_idf(word, text.words())
+            vecs.append(Vsm(text, vec))
+        return VsmList(vecs)
 
 if __name__ == "__main__":
     from hymlab.text.vital import pp
@@ -105,7 +105,6 @@ if __name__ == "__main__":
 
         def tearDown(self):
             pass
-
        
         def test_idf_correct_calc(self):
             r = TfIdf(self.tc)
@@ -141,9 +140,19 @@ if __name__ == "__main__":
             """
             r = TfIdf(self.tc)
             # [u'輩', u'猫', u'猫']
-            self.assertEqual(r.tf()[0][u"猫"], 2.0/3.0)
+            self.assertEqual(r.tf()[0].vec[u"猫"], 2.0/3.0)
             # [u'輩', u'猫']
-            self.assertEqual(r.tf()[1][u"猫"], 1.0/2.0)
+            self.assertEqual(r.tf()[1].vec[u"猫"], 1.0/2.0)
+
+        def test_tf_for_text(self):
+            """
+            tf関数が正しく動作しているかどうか
+            text objに対するテスト
+            """
+            r = TfIdf(self.tc)
+            pp(r.tf()[0].text)
+            # [u'輩', u'猫', u'猫']
+            # self.assertEqual(r.tf()[0].text, 2.0/3.0)
 
         def test_idf(self):
             """
@@ -158,6 +167,6 @@ if __name__ == "__main__":
             """
             r = TfIdf(self.tc)
             # [u'輩', u'猫', u'猫']
-            self.assertEqual(r.tf_idf()[0][u"猫"], (2.0/3.0)*log(3.0/2.0))
+            self.assertEqual(r.tf_idf()[0].vec[u"猫"], (2.0/3.0)*log(3.0/2.0))
 
     unittest.main()

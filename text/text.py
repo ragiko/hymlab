@@ -202,6 +202,4 @@ if __name__ == "__main__":
             t = Text(u"我が輩は猫である")
             self.assertEqual(len(t.words([])), 6)
 
-
-
     unittest.main()
