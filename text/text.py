@@ -38,7 +38,6 @@ class Text:
                 self.words_cache = [word.base_form for word in words if word.pos in content_poslist]
         return self.words_cache
 
-
     def __getstate__(self):
         """
         - pickle化するときにself.sourceを保持しない
@@ -69,6 +68,12 @@ class TextCollection:
         self.path_or_sentences = path_or_sentences
         self.source = TextCollectionSource(path_or_sentences)
         self.list_cache = None
+
+    def __len__(self):
+        """
+        textオブジェクトの数
+        """
+        return len(self.list())
 
     def list(self):
         """
@@ -137,6 +142,17 @@ class TextCollection:
         words = sum(self.words_list(), []) # flatten
         return list(set(words))
 
+    def number_of_words(self):
+        """
+        述べ語語数
+        """
+        return len(sum(self.words_list(), [])) # flatten
+
+    def ave_doc_length(self):
+        """
+        平均文書長
+        """
+        return (float(self.number_of_words()) / len(self))
 
 __all__ = ["Text", "TextCollection"]
 
@@ -176,6 +192,12 @@ if __name__ == "__main__":
             # self.docs_from_dir.dump_texts()
             pass
 
+        def test_text_ave_doc_length(self):
+            # u"我が輩は猫である" => [輩, 猫]
+            # u"名前はまだない" => [名前]
+            tc = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
+            self.assertEqual(tc.ave_doc_length(), 3.0/2.0)
+
         def test_text_collection_add_texts(self):
             tc1 = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
             tc2 = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
@@ -201,5 +223,6 @@ if __name__ == "__main__":
             """
             t = Text(u"我が輩は猫である")
             self.assertEqual(len(t.words([])), 6)
+
 
     unittest.main()
