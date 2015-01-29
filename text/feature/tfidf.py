@@ -18,15 +18,36 @@ class TfIdf(Feature):
         super(TfIdf, self).__init__(text_collection)
 
         # ここで分離すべき
+        self._tf_text_cache = []
         self._idf_cache = {}
 
-    def calc_tf(self, term, text):
+    def calc_tf(self, term, text, normalize=True):
         """
         The frequency of the term in text.
 
         NOTE: floatしてなかったからgitのコードは間違っていると思う
         """
-        return float(text.count(term)) / float(len(text))
+
+        if (normalize):
+            # count() が遅いらしい
+            return float(text.count(term)) / float(len(text))
+        else:
+            return float(text.count(term))
+
+    def calc_tf_vec(self, text, normalize=True):
+        """
+        vec (dist型) で返却する
+        calc_tfではcount()が遅いため
+        """
+        vec = {}
+        for word in text:
+            vec[word] = vec.get(word, 0) + 1
+
+        if (normalize):
+            l = len(text)
+            return {k:(float(v)/float(l)) for k, v in vec.items()}
+        else:
+            return vec
 
     def calc_idf(self, term):
         """ The number of texts in the corpus divided by the
@@ -44,7 +65,7 @@ class TfIdf(Feature):
     def calc_tf_idf(self, term, text):
         return self.calc_tf(term, text) * self.calc_idf(term)
 
-    def tf(self):
+    def tf(self, normalize=True):
         """
         - tfのアクセッサー
 
@@ -54,8 +75,7 @@ class TfIdf(Feature):
         vecs = []
         for text in self._tc.list():
             vec = {} # document vector
-            for word in text.words():
-                vec[word] = self.calc_tf(word, text.words())
+            vec = self.calc_tf_vec(text.words(), normalize)
             vecs.append(Vsm(text, vec))
         return VsmList(vecs)
 
@@ -105,6 +125,10 @@ if __name__ == "__main__":
 
         def tearDown(self):
             pass
+
+        def test_tf_not_normalize(self):
+            tf = TfIdf(self.tc).tf(False)
+            self.assertEqual(tf[0].vec[u'猫'], 2.0)
        
         def test_idf_correct_calc(self):
             r = TfIdf(self.tc)
@@ -143,6 +167,16 @@ if __name__ == "__main__":
             self.assertEqual(r.tf()[0].vec[u"猫"], 2.0/3.0)
             # [u'輩', u'猫']
             self.assertEqual(r.tf()[1].vec[u"猫"], 1.0/2.0)
+
+        def test_tf_func_not_normalize(self):
+            """
+            self.tf()で非正規化の時に正しく動作するか
+            """
+            r = TfIdf(self.tc)
+            # [u'輩', u'猫', u'猫']
+            self.assertEqual(r.tf(False)[0].vec[u"猫"], 2.0)
+            # [u'輩', u'猫']
+            self.assertEqual(r.tf(False)[1].vec[u"猫"], 1.0)
 
         def test_tf_for_text(self):
             """

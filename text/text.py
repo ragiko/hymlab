@@ -16,6 +16,12 @@ class Text:
         self.str = None # cache
         self.words_cache = None # cache
 
+    def __len__(self):
+        """
+        文書長
+        """
+        return len(self.words())
+
     def text(self):
         if self.str is None:
             self.str = self.source.to_str()
@@ -36,6 +42,7 @@ class Text:
                 self.words_cache = [word.base_form for word in words]
             else: 
                 self.words_cache = [word.base_form for word in words if word.pos in content_poslist]
+
         return self.words_cache
 
     def __getstate__(self):
@@ -69,6 +76,12 @@ class TextCollection:
         self.source = TextCollectionSource(path_or_sentences)
         self.list_cache = None
 
+    def __getitem__(self, i):
+        """
+        textオブジェクトの数
+        """
+        return self.list()[i]
+
     def __len__(self):
         """
         textオブジェクトの数
@@ -96,6 +109,15 @@ class TextCollection:
         :return:
         """
         return [text.words() for text in self.list()]
+
+    def merge_texts(self, join_str="."):
+        """
+        文書内の文字をすべてマージさせた文字列を返す
+        param: join_str つなぎ合わせるときの文字列
+        return: 
+        """
+        texts_str = join_str.join([text_obj.text() for text_obj in self.list()])
+        return texts_str
 
     def dump_texts(self):
         """
@@ -197,6 +219,12 @@ if __name__ == "__main__":
             # u"名前はまだない" => [名前]
             tc = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
             self.assertEqual(tc.ave_doc_length(), 3.0/2.0)
+
+        def test_text_merge_texts(self):
+            # u"我が輩は猫である" => [輩, 猫]
+            # u"名前はまだない" => [名前]
+            tc = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
+            self.assertEqual(tc.merge_texts(), u"我が輩は猫である.名前はまだ無い")
 
         def test_text_collection_add_texts(self):
             tc1 = TextCollection([u"我が輩は猫である", u"名前はまだ無い"]) 
