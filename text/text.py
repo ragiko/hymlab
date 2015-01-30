@@ -103,12 +103,12 @@ class TextCollection:
 
         return self.list_cache
 
-    def words_list(self):
+    def words_list(self, content_poslist=[u"名詞"]):
         """
         文書の単語のリスト
         :return:
         """
-        return [text.words() for text in self.list()]
+        return [text.words(content_poslist) for text in self.list()]
 
     def merge_texts(self, join_str="."):
         """
@@ -157,7 +157,7 @@ class TextCollection:
         f.write(s.encode("utf-8"))
         f.close()
 
-    def vocab(self):
+    def vocab(self, content_poslist=[u"名詞"]):
         """
         ユニークな単語リスト
         """
