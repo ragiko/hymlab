@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import numpy as np
 import scipy.spatial.distance
 from collections import namedtuple
 from operator import attrgetter
@@ -69,13 +70,24 @@ class Similarity:
 
         return sim
 
+    def list_cosine(self, vector1, vector2):
+        # 零ベクトルの計算にはNoneを返却
+        if (self.is_zero_vector(vector1) or self.is_zero_vector(vector2)):
+            return None
+
+        # cosine でコサイン距離を計算，1-cosineでコサイン類似度となる．
+        sim = 1 - scipy.spatial.distance.cosine(vector1, vector2)
+
+        return sim
+
     def is_zero_vector(self, vector):
         """
         :param vector: list
         :return:
         """
-        zero_vec = [0.0] * len(vector)
-        return zero_vec == vector
+        if np.linalg.norm(vector) == 0.0:
+            return True
+        return False 
 
     def most_similarity_future_by_inner_filename(self, filename):
         """
@@ -99,6 +111,31 @@ class Similarity:
 
         return sorted(similarities, key=attrgetter('similarity'), reverse=True)
 
+    def calc_similarity(self, vec_base, vec):
+        if type(vec_base) != type(vec):
+            return None
+
+        if type(vec) == dict:
+            """
+            - dict vector
+            """
+            return self.dict_cosine(vec_base, vec)
+
+        elif type(vec) in (int, float):
+            """
+            - score
+            """
+            return vec
+
+        elif type(vec) in (list, np.ndarray):
+            """
+            - list vector
+            """
+            return self.list_cosine(vec_base, vec)
+
+        else:
+            return None
+
     def most_similarity_by_feature(self, outer_vsm):
         """
         - 類似度を計算してランキング
@@ -112,7 +149,7 @@ class Similarity:
         _outer_vsm = Vsm(text, vec)
 
         for vsm in self.features:
-            sim = self.dict_cosine(vsm.vec, _outer_vsm.vec)
+            sim = self.calc_similarity(_outer_vsm.vec, vsm.vec)
             sim_obj = self.Similarity(_outer_vsm, vsm, sim)
             similarities.append(sim_obj)
 
@@ -197,9 +234,57 @@ if __name__ == '__main__':
             tfidf = TfIdf(tc).tf()
             res = self.sim.most_similarity_by_feature(tfidf[0])
             for sim in res:
-                pp(sim.vsm1.text.words())
-                pp(sim.vsm2.text.words())
-                pp(sim.similarity)
+                pass
+                # pp(sim.vsm1.text.words())
+                # pp(sim.vsm2.text.words())
+                # pp(sim.similarity)
+
+        def test_similarity_init_scalar(self):
+            """
+            文書に対する評価値がスカラー値の場合
+            """
+            tc_s = TextCollection([u"我が輩は猫である", u"我が輩は猫である", u"名前はまだない"])
+            sim = Similarity([(tc_s[0], 0.1), (tc_s[1], 0.2)])
+            res = sim.most_similarity_by_feature((tc_s[0], 0.1))
+            # sort
+            self.assertEqual(res[0].similarity, 0.2)
+            self.assertEqual(res[1].similarity, 0.1)
+
+        def test_similarity_init_array(self):
+            """
+            文書に対する評価値がスカラのリストの場合
+            """
+            from math import sqrt 
+            tc_s = TextCollection([u"我が輩は猫である", u"我が輩は猫である", u"名前はまだない"])
+            sim = Similarity([(tc_s[0], [1.0, 1.0]), (tc_s[1], [3.0, 2.0])])
+            res = sim.most_similarity_by_feature((tc_s[2], [1.0, 1.0]))
+            # sort
+            round_num = 4
+            self.assertEqual(round(res[0].similarity, round_num), round(1.0, round_num))
+            self.assertEqual(round(res[1].similarity, round_num), round(5.0/sqrt(26), round_num))
+
+        def test_similarity_init_array(self):
+            """
+            文書に対する評価値がスカラのリストの場合
+            """
+            from math import sqrt 
+            tc_s = TextCollection([u"我が輩は猫である", u"我が輩は猫である", u"名前はまだない"])
+            sim = Similarity([(tc_s[0], [1.0, 1.0]), (tc_s[1], [3.0, 2.0])])
+            res = sim.most_similarity_by_feature((tc_s[2], [1.0, 1.0]))
+            # sort
+            round_num = 4
+            self.assertEqual(round(res[0].similarity, round_num), round(1.0, round_num))
+            self.assertEqual(round(res[1].similarity, round_num), round(5.0/sqrt(26), round_num))
+
+        def test_similarity_array_not_match_length(self):
+            """
+            文書に対する評価値がスカラのリストの場合
+            リストの大きさが合わないとValueError
+            """
+            tc_s = TextCollection([u"我が輩は猫である", u"我が輩は猫である", u"名前はまだない"])
+            sim = Similarity([(tc_s[0], np.array([1.0, 1.0, 1.0])), (tc_s[1], np.array([3.0, 2.0]))])
+            with self.assertRaises(ValueError):
+                sim.most_similarity_by_feature((tc_s[2], np.array([1.0, 1.0])))
 
         def test_test(self):
             pass
