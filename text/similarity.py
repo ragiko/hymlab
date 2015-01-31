@@ -14,7 +14,10 @@ class Similarity:
     ベースはコサイン尺度
     """
     def __init__(self, features):
-        self.features = features
+        """
+        feature is list of tuple (text, vec)
+        """
+        self.features = VsmList(features)
         self.Similarity = namedtuple("Similarity", "vsm1 vsm2 similarity")
 
     def is_match(self, regexp, text):
@@ -96,17 +99,21 @@ class Similarity:
 
         return sorted(similarities, key=attrgetter('similarity'), reverse=True)
 
-    def most_similarity_future_by_outer_feature(self, outer_vsm):
+    def most_similarity_by_feature(self, outer_vsm):
         """
         - 類似度を計算してランキング
         外部の文書に対して類似度を算出
-        :param
+        :param vsm is tuple (text, vec)
         :return:
         """
         similarities = []
+        text = outer_vsm[0]
+        vec = outer_vsm[1]
+        _outer_vsm = Vsm(text, vec)
+
         for vsm in self.features:
-            sim = self.dict_cosine(vsm.vec, outer_vsm.vec)
-            sim_obj = self.Similarity(outer_vsm, vsm, sim)
+            sim = self.dict_cosine(vsm.vec, _outer_vsm.vec)
+            sim_obj = self.Similarity(_outer_vsm, vsm, sim)
             similarities.append(sim_obj)
 
         return sorted(similarities, key=attrgetter('similarity'), reverse=True)
@@ -185,31 +192,31 @@ if __name__ == '__main__':
             #     pp(sim.vsm2.text.words())
             #     pp(sim.similarity)
 
-        def test_most_similarity_future_by_outer_filename_only_sentence(self):
-            pass
-            # tc = TextCollection([u"我が輩は猫である"])
-            # tfidf = TfIdf(tc).run()
-            # res = self.sim.most_similarity_future_by_outer_feature(tfidf[0])
-            # for sim in res:
-            #     pp(sim.vsm1.text.words())
-            #     pp(sim.vsm2.text.words())
-            #     pp(sim.similarity)
+        def test_most_similarity_by_feature(self):
+            tc = TextCollection([u"我が輩は猫である"])
+            tfidf = TfIdf(tc).tf()
+            res = self.sim.most_similarity_by_feature(tfidf[0])
+            for sim in res:
+                pp(sim.vsm1.text.words())
+                pp(sim.vsm2.text.words())
+                pp(sim.similarity)
 
         def test_test(self):
-            # 文書集合を定義
-            tc = TextCollection("test/data")
+            pass
+            # # 文書集合を定義
+            # tc = TextCollection("test/data")
 
-            # 特徴量を取得
-            tfidf = TfIdf(tc).tf_idf()
+            # # 特徴量を取得
+            # tfidf = TfIdf(tc).tf_idf()
 
-            # a.txtに対する類似度を表示
-            self.sim = Similarity(tfidf)
-            res = self.sim.most_similarity_future_by_inner_filename("a.txt")
+            # # a.txtに対する類似度を表示
+            # self.sim = Similarity(tfidf)
+            # res = self.sim.most_similarity_future_by_inner_filename("a.txt")
 
-            for sim in res:
-                print u"file A : %s" %  sim.vsm1.text.path
-                print u"file B : %s" %  sim.vsm2.text.path
-                print u"similarity : %s" %  sim.similarity
-                print "\n"
+            # for sim in res:
+            #     print u"file A : %s" %  sim.vsm1.text.path
+            #     print u"file B : %s" %  sim.vsm2.text.path
+            #     print u"similarity : %s" %  sim.similarity
+            #     print "\n"
 
     unittest.main()
