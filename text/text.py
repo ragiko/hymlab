@@ -161,7 +161,7 @@ class TextCollection:
         """
         ユニークな単語リスト
         """
-        words = sum(self.words_list(), []) # flatten
+        words = sum(self.words_list(content_poslist), []) # flatten
         return list(set(words))
 
     def number_of_words(self):

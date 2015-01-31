@@ -44,3 +44,6 @@ for sim in res:
 ## similarity.py
 * 文書ベクトルの類似度を測るモジュール
 
+## version
+* 1.0: 
+* 1.1: 1/31
