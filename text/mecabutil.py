@@ -57,9 +57,13 @@ def get_words(string):
 
     enc_string = string.encode("utf-8")
 
-    result = MeCab.Tagger("--eos-format="" ")\
-                  .parse(enc_string)\
-                  .decode("utf-8")
+    try:
+        # parseがnoneになるときある
+        result = MeCab.Tagger("--eos-format="" ")\
+                      .parse(enc_string)\
+                      .decode("utf-8")
+    except:
+        return []
 
     lines = result.split("\n")
     del lines[len(lines) - 1]

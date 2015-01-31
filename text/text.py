@@ -88,6 +88,13 @@ class TextCollection:
         """
         return len(self.list())
 
+    def __add__(self, other_text_collection):
+       this_texts = self.list()
+       other_texts =  [text for text in other_text_collection.list()]
+       this_texts.extend(other_texts)
+       self.list_cache = this_texts
+       return self 
+
     def list(self):
         """
         :return: Textオブジェクトのリスト
@@ -164,17 +171,24 @@ class TextCollection:
         words = sum(self.words_list(content_poslist), []) # flatten
         return list(set(words))
 
-    def number_of_words(self):
+    def number_of_words(self,  content_poslist=[u"名詞"]):
         """
         述べ語語数
         """
-        return len(sum(self.words_list(), [])) # flatten
+        return len(sum(self.words_list(content_poslist), [])) # flatten
 
-    def ave_doc_length(self):
+    def ave_doc_length(self, content_poslist=[u"名詞"]):
         """
         平均文書長
         """
-        return (float(self.number_of_words()) / len(self))
+        return (float(self.number_of_words(content_poslist)) / len(self))
+
+    def info(self):
+        print u"述べ語数 %s" % str(self.number_of_words([]))
+        print u"異なり語数 %s" % str(len(self.vocab([])))
+        print u"文書数 %s" % len(self)
+        print u"平均文書長 %s" % str(self.ave_doc_length([]))
+
 
 __all__ = ["Text", "TextCollection"]
 

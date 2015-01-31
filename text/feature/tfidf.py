@@ -16,8 +16,6 @@ class TfIdf(Feature):
     # TODO: init idf other dir
     def __init__(self, text_collection):
         super(TfIdf, self).__init__(text_collection)
-
-        # ここで分離すべき
         self._tf_text_cache = []
         self._idf_cache = {}
 
