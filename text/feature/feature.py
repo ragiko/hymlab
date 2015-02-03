@@ -68,6 +68,11 @@ class Vsm(object):
         self.text = text
         self.vec = vec
 
+"""
+decorator用のラッパータプル
+"""
+VsmTuple = namedtuple("VsmTuple", "text vec")
+
 def features_decorator(f):
     """
     @ decorator
@@ -81,7 +86,7 @@ def features_decorator(f):
         # http://stackoverflow.com/questions/11731136/python-class-method-decorator-w-self-arguments
         this = args[0]
         features = f(*args, **kwds)
-        return [this.VsmWrapper(text, vector) for text, vector in features]
+        return [VsmTuple(text, vector) for text, vector in features]
     return make_features
         
 class Feature(object): # object継承しないとsuper呼べない
@@ -104,9 +109,6 @@ class Feature(object): # object継承しないとsuper呼べない
         for name in deligates:
             method = getattr(self._tc, name)
             setattr(self, name, method)
-
-        # 簡易初期化用
-        self.VsmWrapper = namedtuple("VsmTuple", "text vec")
 
 if __name__ == "__main__":
     import hymlab.text as ht
