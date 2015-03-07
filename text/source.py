@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import os
 from hymlab.text.util import *
 
 class TextSource:
@@ -9,16 +10,22 @@ class TextSource:
     """
     def __init__(self, file_or_str):
         self.file_or_str = file_or_str
+        self.file_path = ""
+        if (isinstance(self.file_or_str, file)):
+            self.file_path = os.path.abspath(self.file_or_str.name)
+            # 開きっぱなしのファイルのclose
+            if (self.file_or_str.closed == False):
+                self.file_or_str.close()
 
     def is_file(self):
-        return isinstance(self.file_or_str, file)
+        return self.file_path != ""
 
     def is_str(self):
-        return isinstance(self.file_or_str, str)
+        return self.file_path == ""
 
     def to_str(self):
         if self.is_file():
-            return file_read_from_file(self.file_or_str)
+            return file_read(self.file_path)
         else:
             return self.file_or_str
 
